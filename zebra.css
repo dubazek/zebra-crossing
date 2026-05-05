@@ -1,0 +1,498 @@
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap');
+
+  :root {
+    --sky: #87CEEB;
+    --sky-deep: #4AABDB;
+    --grass: #5DBB63;
+    --grass-dark: #3D9142;
+    --road: #2C2C2C;
+    --road-stripe: #FFFFFF;
+    --sidewalk: #D4A96A;
+    --sidewalk-shadow: #B8894E;
+    --red-light: #FF3B30;
+    --yellow-light: #FFD60A;
+    --green-light: #30D158;
+    --ui-bg: rgba(255,255,255,0.92);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Fredoka One', cursive;
+    background: var(--sky);
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+  }
+
+  #game-wrapper {
+    position: relative;
+    width: min(600px, 100vw);
+    height: min(820px, 100vh);
+    overflow: hidden;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  }
+
+  /* ── WORLD CANVAS ── */
+  #world {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0; left: 0;
+  }
+
+  /* ── SKY ZONE ── */
+  #sky-zone {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22%;
+    background: linear-gradient(180deg, #87CEEB 0%, #B8E4F7 100%);
+  }
+
+  /* ── GRASS TOP ── */
+  #grass-top {
+    position: absolute;
+    top: 22%;
+    left: 0; right: 0;
+    height: 10%;
+    background: var(--grass);
+    border-bottom: 4px solid var(--grass-dark);
+  }
+
+  /* ── SIDEWALK TOP ── */
+  #sidewalk-top {
+    position: absolute;
+    top: 32%;
+    left: 0; right: 0;
+    height: 10%;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--sidewalk) 0px, var(--sidewalk) 30px,
+      var(--sidewalk-shadow) 30px, var(--sidewalk-shadow) 32px
+    );
+    border-bottom: 3px solid #8B6914;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── ROAD ── */
+  #road {
+    position: absolute;
+    top: 42%;
+    left: 0; right: 0;
+    height: 18%;
+    background: var(--road);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* zebra stripes */
+  #zebra-stripes {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 4px 0;
+    gap: 2px;
+  }
+
+  .stripe {
+    background: var(--road-stripe);
+    height: 12px;
+    border-radius: 3px;
+    box-shadow: 0 0 6px rgba(255,255,255,0.4);
+  }
+
+  /* ── SIDEWALK BOTTOM ── */
+  #sidewalk-bottom {
+    position: absolute;
+    top: 60%;
+    left: 0; right: 0;
+    height: 10%;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--sidewalk) 0px, var(--sidewalk) 30px,
+      var(--sidewalk-shadow) 30px, var(--sidewalk-shadow) 32px
+    );
+    border-top: 3px solid #8B6914;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── GRASS BOTTOM ── */
+  #grass-bottom {
+    position: absolute;
+    top: 70%;
+    left: 0; right: 0;
+    height: 10%;
+    background: var(--grass);
+    border-top: 4px solid var(--grass-dark);
+  }
+
+  /* ── UI BOTTOM ── */
+  #ui-bottom {
+    position: absolute;
+    top: 80%;
+    left: 0; right: 0;
+    height: 20%;
+    background: linear-gradient(180deg, #6DC36F 0%, #4CAF50 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 16px;
+    gap: 8px;
+  }
+
+  /* ── TRAFFIC LIGHT ── */
+  .traffic-light-container {
+    position: absolute;
+    top: 28%;
+    width: 60px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  #tl-left { left: 20px; }
+  #tl-right { right: 20px; }
+
+  .traffic-light-box {
+    width: 52px;
+    background: #1a1a1a;
+    border-radius: 10px;
+    border: 3px solid #333;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+
+  .tl-lens {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #333;
+    transition: background 0.3s, box-shadow 0.3s;
+    border: 2px solid #444;
+  }
+
+  .tl-lens.active-red {
+    background: var(--red-light);
+    box-shadow: 0 0 14px 6px rgba(255,59,48,0.7);
+    animation: pulse-red 1s infinite;
+  }
+  .tl-lens.active-yellow {
+    background: var(--yellow-light);
+    box-shadow: 0 0 14px 6px rgba(255,214,10,0.7);
+    animation: pulse-yellow 0.6s infinite;
+  }
+  .tl-lens.active-green {
+    background: var(--green-light);
+    box-shadow: 0 0 14px 6px rgba(48,209,88,0.7);
+    animation: pulse-green 1s infinite;
+  }
+
+  @keyframes pulse-red    { 0%,100%{opacity:1} 50%{opacity:0.75} }
+  @keyframes pulse-yellow { 0%,100%{opacity:1} 50%{opacity:0.6}  }
+  @keyframes pulse-green  { 0%,100%{opacity:1} 50%{opacity:0.8}  }
+
+  .tl-pole {
+    width: 8px;
+    height: 30px;
+    background: linear-gradient(90deg, #555, #888, #555);
+    border-radius: 4px;
+  }
+  .tl-base {
+    width: 22px;
+    height: 8px;
+    background: #666;
+    border-radius: 4px;
+  }
+
+  /* walk man indicator */
+  .walk-man-indicator {
+    margin-top: 4px;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #333;
+  }
+
+  /* ── CHARACTER ── */
+  #character {
+    position: absolute;
+    width: 52px;
+    height: 78px;
+    z-index: 20;
+    transition: left 0.3s;
+    cursor: pointer;
+  }
+
+  /* idle bob */
+  @keyframes char-idle {
+    0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)}
+  }
+  #character.idle { animation: char-idle 1.5s ease-in-out infinite; }
+
+  /* look left-right */
+  @keyframes look-lr {
+    0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-8deg)} 75%{transform:rotate(8deg)}
+  }
+  #character.looking { animation: look-lr 1s ease-in-out infinite; }
+
+  /* walking */
+  @keyframes char-walk {
+    0%,100%{transform:translateY(0) rotate(0deg)} 25%{transform:translateY(-3px) rotate(-2deg)} 75%{transform:translateY(-3px) rotate(2deg)}
+  }
+  #character.walking { animation: char-walk 0.4s ease-in-out infinite; }
+
+  /* celebrate */
+  @keyframes char-celebrate {
+    0%{transform:scale(1) rotate(0deg)} 25%{transform:scale(1.2) rotate(-10deg)} 50%{transform:scale(1.3) rotate(10deg)} 75%{transform:scale(1.2) rotate(-5deg)} 100%{transform:scale(1) rotate(0deg)}
+  }
+  #character.celebrating { animation: char-celebrate 0.5s ease-in-out 3; }
+
+  /* ── CARS ── */
+  .car {
+    position: absolute;
+    height: 56px;
+    z-index: 15;
+    transition: left 0.05s linear;
+  }
+
+  /* ── STAR REWARD ── */
+  #star-reward {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    z-index: 100;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events: none;
+    text-align: center;
+  }
+  #star-reward.show { transform: translate(-50%, -50%) scale(1); }
+  #star-reward svg { filter: drop-shadow(0 0 20px gold); }
+  #star-label { font-family:'Fredoka One',cursive; font-size:2rem; color:#FFD700; text-shadow: 2px 2px 0 #8B6914; margin-top:8px; }
+
+  /* ── SPEECH BUBBLE ── */
+  #speech-bubble {
+    position: absolute;
+    top: 9%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border-radius: 20px;
+    border: 3px solid #333;
+    padding: 10px 18px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: #222;
+    z-index: 50;
+    max-width: 280px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+  }
+  #speech-bubble::after {
+    content:'';
+    position:absolute;
+    bottom:-18px;
+    left:50%;
+    transform:translateX(-50%);
+    border:9px solid transparent;
+    border-top-color:white;
+  }
+  #speech-bubble::before {
+    content:'';
+    position:absolute;
+    bottom:-23px;
+    left:50%;
+    transform:translateX(-50%);
+    border:11px solid transparent;
+    border-top-color:#333;
+  }
+  #speech-bubble.visible { opacity: 1; }
+
+  /* ── WALK BUTTON ── */
+  #walk-btn {
+    background: linear-gradient(135deg, #30D158, #1aad40);
+    border: none;
+    border-radius: 50px;
+    padding: 14px 28px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #0e7a2a, 0 8px 16px rgba(0,0,0,0.3);
+    transition: transform 0.1s, box-shadow 0.1s;
+    border: 3px solid rgba(255,255,255,0.3);
+    min-width: 140px;
+  }
+  #walk-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #0e7a2a, 0 4px 8px rgba(0,0,0,0.2);
+  }
+  #walk-btn:disabled {
+    background: linear-gradient(135deg, #aaa, #888);
+    box-shadow: 0 4px 0 #555;
+    cursor: not-allowed;
+  }
+
+  /* ── STARS BAR ── */
+  #stars-bar {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .star-slot {
+    width: 30px;
+    height: 30px;
+    transition: transform 0.3s;
+  }
+  .star-slot.earned { animation: star-pop 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes star-pop { 0%{transform:scale(0)} 100%{transform:scale(1)} }
+
+  /* ── LEVEL BADGE ── */
+  #level-badge {
+    background: #FF9F0A;
+    border-radius: 50px;
+    padding: 8px 18px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    color: white;
+    border: 3px solid rgba(255,255,255,0.4);
+    box-shadow: 0 4px 0 #c47000;
+    white-space: nowrap;
+  }
+
+  /* ── OVERLAY ── */
+  #overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+  #overlay.show { opacity: 1; pointer-events: all; }
+  #overlay-card {
+    background: white;
+    border-radius: 28px;
+    padding: 36px 32px;
+    text-align: center;
+    max-width: 320px;
+    border: 4px solid #FFD60A;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  #overlay-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+  }
+  #overlay-msg {
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 20px;
+  }
+  #overlay-btn {
+    background: linear-gradient(135deg, #FF9F0A, #FF6B00);
+    border: none;
+    border-radius: 50px;
+    padding: 14px 36px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #8B3A00;
+    border: 3px solid rgba(255,255,255,0.3);
+  }
+
+  /* ── DISTRACTION BIRD ── */
+  #bird {
+    position: absolute;
+    top: 15%;
+    left: -80px;
+    z-index: 12;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  @keyframes bird-fly {
+    0%  { left: -80px; top: 15%; }
+    50% { top: 8%; }
+    100%{ left: 110%; top: 12%; }
+  }
+  #bird.flying {
+    opacity: 1;
+    animation: bird-fly 5s linear forwards;
+  }
+
+  /* ── CLOUD ANIMATIONS ── */
+  @keyframes cloud-drift {
+    0%{transform:translateX(0)} 100%{transform:translateX(20px)}
+  }
+  .cloud { animation: cloud-drift 6s ease-in-out infinite alternate; }
+  .cloud:nth-child(2) { animation-delay: -2s; }
+  .cloud:nth-child(3) { animation-delay: -4s; }
+
+  /* ── SUN RAYS ── */
+  @keyframes sun-spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+  #sun-rays { animation: sun-spin 12s linear infinite; transform-origin: 50% 50%; }
+
+  /* ── WHOOPS SHAKE ── */
+  @keyframes shake {
+    0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)}
+  }
+  #character.shake-err { animation: shake 0.5s ease-in-out; }
+
+  /* ── PROGRESS ROAD ── */
+  #progress-road {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.9;
+  }
+  #progress-road span {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.75rem;
+    color: white;
+  }
+
+  /* Accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
